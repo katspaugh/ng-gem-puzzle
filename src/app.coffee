@@ -88,16 +88,20 @@ app.controller 'GemController', ($scope, $timeout) ->
         @gems.forEach (gem, index) =>
             if gem.exploded
                 @gems[index] = null
-        [(@size * @size - 1)..0].map (index) =>
+        [(@size * @size - 1)..0].forEach (index) =>
             gem = @gems[index]
-            upperIndex = index
-            while upperIndex >= @size and not gem
-                upperIndex = upperIndex - @size
-                gem = @gems[upperIndex]
-                @gems[upperIndex] = null
-            # If there's a gem above the removed one, it falls down.
-            # Otherwise, a new random gem falls down.
-            @gems[index] = gem or randomGem()
+            if not gem
+                upperIndex = index
+                while upperIndex >= @size and not gem
+                    upperIndex = upperIndex - @size
+                    gem = @gems[upperIndex]
+                    @gems[upperIndex] = null
+                # If there's a gem above the removed one, it falls down.
+                # Otherwise, a new random gem falls down.
+                if gem
+                    @gems[index] = new Gem { type: gem.type, color: gem.color }
+                else
+                    @gems[index] = randomGem()
 
     ###
     Highlights a string of adjacent gems
