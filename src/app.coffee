@@ -45,7 +45,7 @@ Gem.Colors = [
 ]
 
 
-app = angular.module('shariki', []);
+app = angular.module('shariki', ['ngAnimate']);
 
 app.controller 'GemController', ($scope, $timeout) ->
     # How many gems must match
@@ -56,8 +56,6 @@ app.controller 'GemController', ($scope, $timeout) ->
     @gems = []
     # A temporary array of currently highlighted gems
     @highlighted = []
-    # Can't match gems when the game is in the dirty state
-    @dirty = false
 
     ###
     Creates a gem with random type and color
@@ -73,38 +71,33 @@ app.controller 'GemController', ($scope, $timeout) ->
     same color, they get "exploded"
     ###
     @explode = (gem) ->
-        if @dirty
-            return null
-
         adjacent = @getAdjacent gem
         if adjacent.length >= @matchNumber
-            @dirty = true
-
             adjacent.forEach (index) =>
                 @gems[index].exploded = true
 
-            $timeout((=>
-                @dirty = false
-                @gems = @getSorted()), 300)
+            $timeout(
+                => @reorder()
+                300)
 
     ###
-    Returns a new gems array with exploded gems replaced with the
-    gems from the line above
+    Reorders the gems so that the exploded gems are replaced
+    with the gems from the line above
     ###
-    @getSorted = () ->
-        sorted = @gems.map (gem) ->
+    @reorder = () ->
+        @gems.forEach (gem, index) =>
             if gem.exploded
-                gem = null
-            gem
+                @gems[index] = null
         [(@size * @size - 1)..0].map (index) =>
-            gem = sorted[index]
+            gem = @gems[index]
             upperIndex = index
             while upperIndex >= @size and not gem
                 upperIndex = upperIndex - @size
-                gem = sorted[upperIndex]
-                sorted[upperIndex] = null
-            sorted[index] = gem or randomGem()
-        sorted
+                gem = @gems[upperIndex]
+                @gems[upperIndex] = null
+            # If there's a gem above the removed one, it falls down.
+            # Otherwise, a new random gem falls down.
+            @gems[index] = gem or randomGem()
 
     ###
     Highlights a string of adjacent gems

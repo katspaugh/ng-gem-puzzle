@@ -3,12 +3,13 @@
     <head>
         <link rel="stylesheet" href="css/main.css" type="text/css" />
         <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.13/angular.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.13/angular-animate.min.js"></script>
         <script src="dist/app.js"></script>
     </head>
 
     <body ng-app="shariki">
         <section class="gem-grid" ng-controller="GemController as gemCtrl">
-            <div class="gem-cell" ng-include="'gem.html'" ng-repeat="gem in gemCtrl.gems">
+            <div class="gem-cell gem-cell_animated" ng-include="'gem.html'" ng-repeat="gem in gemCtrl.gems">
             </div>
         </section>
     </body>

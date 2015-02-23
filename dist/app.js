@@ -52,7 +52,7 @@ Represents a polygonal jewel
 
   Gem.Colors = ['red', 'green', 'blue', 'yellow', 'violet'];
 
-  app = angular.module('shariki', []);
+  app = angular.module('shariki', ['ngAnimate']);
 
   app.controller('GemController', function($scope, $timeout) {
     var randomGem, _i, _ref, _results;
@@ -60,7 +60,6 @@ Represents a polygonal jewel
     this.size = 8;
     this.gems = [];
     this.highlighted = [];
-    this.dirty = false;
 
     /*
     Creates a gem with random type and color
@@ -78,56 +77,51 @@ Represents a polygonal jewel
      */
     this.explode = function(gem) {
       var adjacent;
-      if (this.dirty) {
-        return null;
-      }
       adjacent = this.getAdjacent(gem);
       if (adjacent.length >= this.matchNumber) {
-        this.dirty = true;
         adjacent.forEach((function(_this) {
           return function(index) {
             return _this.gems[index].exploded = true;
           };
         })(this));
-        return $timeout(((function(_this) {
+        return $timeout((function(_this) {
           return function() {
-            _this.dirty = false;
-            return _this.gems = _this.getSorted();
+            return _this.reorder();
           };
-        })(this)), 300);
+        })(this), 300);
       }
     };
 
     /*
-    Returns a new gems array with exploded gems replaced with the
-    gems from the line above
+    Reorders the gems so that the exploded gems are replaced
+    with the gems from the line above
      */
-    this.getSorted = function() {
-      var sorted, _i, _ref, _results;
-      sorted = this.gems.map(function(gem) {
-        if (gem.exploded) {
-          gem = null;
-        }
-        return gem;
-      });
-      (function() {
+    this.reorder = function() {
+      var _i, _ref, _results;
+      this.gems.forEach((function(_this) {
+        return function(gem, index) {
+          if (gem.exploded) {
+            return _this.gems[index] = null;
+          }
+        };
+      })(this));
+      return (function() {
         _results = [];
         for (var _i = _ref = this.size * this.size - 1; _ref <= 0 ? _i <= 0 : _i >= 0; _ref <= 0 ? _i++ : _i--){ _results.push(_i); }
         return _results;
       }).apply(this).map((function(_this) {
         return function(index) {
           var gem, upperIndex;
-          gem = sorted[index];
+          gem = _this.gems[index];
           upperIndex = index;
           while (upperIndex >= _this.size && !gem) {
             upperIndex = upperIndex - _this.size;
-            gem = sorted[upperIndex];
-            sorted[upperIndex] = null;
+            gem = _this.gems[upperIndex];
+            _this.gems[upperIndex] = null;
           }
-          return sorted[index] = gem || randomGem();
+          return _this.gems[index] = gem || randomGem();
         };
       })(this));
-      return sorted;
     };
 
     /*

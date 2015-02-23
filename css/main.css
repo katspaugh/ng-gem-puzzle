@@ -4,8 +4,8 @@ body {
 }
 
 .gem-grid {
-    width: 480px;
-    height: 480px;
+    width: 512px;
+    height: 512px;
     margin: 30px auto;
 }
 
@@ -15,6 +15,15 @@ body {
 
 .gem-cell:nth-child(8n + 1) {
     clear: left;
+}
+
+.gem-cell_animated.ng-enter {
+    transition: transform 300ms;
+    transform: translateY(-100%);
+}
+
+.gem-cell_animated.ng-enter.ng-enter-active {
+    transform: none;
 }
 
 @-webkit-keyframes spin {
@@ -30,47 +39,51 @@ body {
     -webkit-animation: spin 20s infinite linear;
     width: 60px;
     height: 60px;
+    padding: 2px;
 }
 
-.gem .gem__svg {
+.gem__svg {
     width: 100%;
     height: 100%;
-    -webkit-transition: opacity linear 300ms,
-                        transform linear 300ms;
+    transition: opacity linear 300ms,
+                transform linear 300ms;
 }
 
-.gem__polygon {
-    stroke-width: 10px;
-    stroke: #fff;
-    -webkit-transition: stroke-width 300ms;
-}
-
-.gem_highlight_true .gem__polygon {
-    stroke-width: 0;
+.gem_highlight_true .gem__svg {
+    transform: scale(1.1);
     cursor: pointer;
 }
 
 .gem_exploded_true .gem__svg {
     opacity: 0;
-    transform: scale(2, 2);
+    transform: scale(2);
+}
+
+.gem__polygon {
+    stroke-width: 4px;
 }
 
 .gem_color_red .gem__polygon {
     fill: #F04333;
+    stroke: #B9121B;
 }
 
 .gem_color_green .gem__polygon {
     fill: #8BE66A;
+    stroke: #00A99D;
 }
 
 .gem_color_blue .gem__polygon {
     fill: #61D9D6;
+    stroke: #004FBD;
 }
 
 .gem_color_violet .gem__polygon {
     fill: #E80CF0;
+    stroke: #723147;
 }
 
 .gem_color_yellow .gem__polygon {
     fill: #FF8C27;
+    stroke: #F15A24;
 }
