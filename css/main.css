@@ -1,0 +1,76 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.gem-grid {
+    width: 480px;
+    height: 480px;
+    margin: 30px auto;
+}
+
+.gem-cell {
+    float: left;
+}
+
+.gem-cell:nth-child(8n + 1) {
+    clear: left;
+}
+
+@-webkit-keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.gem {
+    -webkit-animation: spin 20s infinite linear;
+    width: 60px;
+    height: 60px;
+}
+
+.gem .gem__svg {
+    width: 100%;
+    height: 100%;
+    -webkit-transition: opacity linear 300ms,
+                        transform linear 300ms;
+}
+
+.gem__polygon {
+    stroke-width: 10px;
+    stroke: #fff;
+    -webkit-transition: stroke-width 300ms;
+}
+
+.gem_highlight_true .gem__polygon {
+    stroke-width: 0;
+    cursor: pointer;
+}
+
+.gem_exploded_true .gem__svg {
+    opacity: 0;
+    transform: scale(2, 2);
+}
+
+.gem_color_red .gem__polygon {
+    fill: #F04333;
+}
+
+.gem_color_green .gem__polygon {
+    fill: #8BE66A;
+}
+
+.gem_color_blue .gem__polygon {
+    fill: #61D9D6;
+}
+
+.gem_color_violet .gem__polygon {
+    fill: #E80CF0;
+}
+
+.gem_color_yellow .gem__polygon {
+    fill: #FF8C27;
+}

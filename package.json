@@ -1,0 +1,20 @@
+{
+  "name": "ng-shariki",
+  "version": "1.0.0",
+  "description": "A match-three puzzle game in CoffeeScript and AngularJS.",
+  "main": "index.html",
+  "scripts": {
+    "start": "coffee -o dist/ -cw src/"
+  },
+  "keywords": [
+    "puzzle"
+  ],
+  "author": "katspaugh@gmail.com",
+  "license": "BSD",
+  "devDependencies": {
+    "coffee-script": "1.9.0"
+  },
+  "dependencies": {
+    "angular": "^1.3.13"
+  }
+}
