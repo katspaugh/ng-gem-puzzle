@@ -50,8 +50,10 @@ app = angular.module('gem-puzzle', ['ngAnimate'])
 app.controller 'GemController', ($scope, $timeout) ->
     # How many gems must match
     @matchNumber = 3
-    # Size of the board is 8x8
+    # The size of one side of the board
     @size = 8
+    # 8x8 tiles
+    @tiles = [0...(@size * @size)]
     # This is the array of gems on the board
     @gems = []
     # A temporary array of currently highlighted gems
@@ -60,7 +62,7 @@ app.controller 'GemController', ($scope, $timeout) ->
     ###
     Creates a gem with random type and color
     ###
-    randomGem = ->
+    @randomGem = ->
         new Gem {
             color: Gem.Colors[Math.floor Math.random() * Gem.Colors.length]
             type: Gem.Types[Math.floor Math.random() * Gem.Types.length]
@@ -71,9 +73,9 @@ app.controller 'GemController', ($scope, $timeout) ->
     same color, they get "exploded"
     ###
     @explode = (gem) ->
-        adjacent = @getAdjacent gem
-        if adjacent.length >= @matchNumber
-            adjacent.forEach (index) =>
+        linked = @getLinked gem
+        if linked
+            linked.forEach (index) =>
                 @gems[index].exploded = true
 
             $timeout(
@@ -101,15 +103,15 @@ app.controller 'GemController', ($scope, $timeout) ->
                 if gem
                     @gems[index] = new Gem { type: gem.type, color: gem.color }
                 else
-                    @gems[index] = randomGem()
+                    @gems[index] = @randomGem()
 
     ###
-    Highlights a string of adjacent gems
+    Highlights a string of linked gems
     ###
     @highlightOn = (gem) ->
-        indeces = @getAdjacent(gem)
-        if indeces.length >= @matchNumber
-            @highlighted = indeces.map (index) =>
+        linked = @getLinked(gem)
+        if linked
+            @highlighted = linked.map (index) =>
                 gem = @gems[index]
                 gem.highlight = true
                 gem
@@ -127,24 +129,32 @@ app.controller 'GemController', ($scope, $timeout) ->
     The string can be a straight line or a polyline,
     but not a diagonal line
     ###
-    @getAdjacent = (firstGem) ->
+    @getLinked = (firstGem) ->
         # This is a queue-based flood fill algorithm.
         # See http://en.wikipedia.org/wiki/Flood_fill
-        adjacent = []
+        linked = []
         queue = [ @gems.indexOf firstGem ]
         while queue.length
             index = queue.pop()
-            if adjacent.indexOf(index) is -1
+            if linked.indexOf(index) is -1
                 gem = @gems[index]
                 if gem and gem.color is firstGem.color
-                    adjacent.push(index)
+                    linked.push(index)
                     if index is 0 or (index + 1) % @size
                         queue.push(index + 1)
                     if index % @size
                         queue.push(index - 1)
                     queue.push(index + @size)
                     queue.push(index - @size)
-        adjacent
+        linked if linked.length >= @matchNumber
 
+    ###
+    Checks end game conditions
+    ###
+    @isEndGame = () ->
+        # If none of the gems are linked to 2 or more gems,
+        # it's the end of the game
+        !@gems.some ((gem) -> !!@getLinked gem), this
 
-    @gems = [0...(@size * @size)].map randomGem
+    while @isEndGame()
+        @gems = @tiles.map @randomGem, this

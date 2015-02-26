@@ -55,16 +55,21 @@ Represents a polygonal jewel
   app = angular.module('gem-puzzle', ['ngAnimate']);
 
   app.controller('GemController', function($scope, $timeout) {
-    var randomGem, _i, _ref, _results;
+    var _i, _ref, _results, _results1;
     this.matchNumber = 3;
     this.size = 8;
+    this.tiles = (function() {
+      _results = [];
+      for (var _i = 0, _ref = this.size * this.size; 0 <= _ref ? _i < _ref : _i > _ref; 0 <= _ref ? _i++ : _i--){ _results.push(_i); }
+      return _results;
+    }).apply(this);
     this.gems = [];
     this.highlighted = [];
 
     /*
     Creates a gem with random type and color
      */
-    randomGem = function() {
+    this.randomGem = function() {
       return new Gem({
         color: Gem.Colors[Math.floor(Math.random() * Gem.Colors.length)],
         type: Gem.Types[Math.floor(Math.random() * Gem.Types.length)]
@@ -76,10 +81,10 @@ Represents a polygonal jewel
     same color, they get "exploded"
      */
     this.explode = function(gem) {
-      var adjacent;
-      adjacent = this.getAdjacent(gem);
-      if (adjacent.length >= this.matchNumber) {
-        adjacent.forEach((function(_this) {
+      var linked;
+      linked = this.getLinked(gem);
+      if (linked) {
+        linked.forEach((function(_this) {
           return function(index) {
             return _this.gems[index].exploded = true;
           };
@@ -97,7 +102,7 @@ Represents a polygonal jewel
     with the gems from the line above
      */
     this.reorder = function() {
-      var _i, _ref, _results;
+      var _j, _ref1, _results1;
       this.gems.forEach((function(_this) {
         return function(gem, index) {
           if (gem.exploded) {
@@ -106,9 +111,9 @@ Represents a polygonal jewel
         };
       })(this));
       return (function() {
-        _results = [];
-        for (var _i = _ref = this.size * this.size - 1; _ref <= 0 ? _i <= 0 : _i >= 0; _ref <= 0 ? _i++ : _i--){ _results.push(_i); }
-        return _results;
+        _results1 = [];
+        for (var _j = _ref1 = this.size * this.size - 1; _ref1 <= 0 ? _j <= 0 : _j >= 0; _ref1 <= 0 ? _j++ : _j--){ _results1.push(_j); }
+        return _results1;
       }).apply(this).forEach((function(_this) {
         return function(index) {
           var gem, upperIndex;
@@ -126,7 +131,7 @@ Represents a polygonal jewel
                 color: gem.color
               });
             } else {
-              return _this.gems[index] = randomGem();
+              return _this.gems[index] = _this.randomGem();
             }
           }
         };
@@ -134,13 +139,13 @@ Represents a polygonal jewel
     };
 
     /*
-    Highlights a string of adjacent gems
+    Highlights a string of linked gems
      */
     this.highlightOn = function(gem) {
-      var indeces;
-      indeces = this.getAdjacent(gem);
-      if (indeces.length >= this.matchNumber) {
-        return this.highlighted = indeces.map((function(_this) {
+      var linked;
+      linked = this.getLinked(gem);
+      if (linked) {
+        return this.highlighted = linked.map((function(_this) {
           return function(index) {
             gem = _this.gems[index];
             gem.highlight = true;
@@ -165,16 +170,16 @@ Represents a polygonal jewel
     The string can be a straight line or a polyline,
     but not a diagonal line
      */
-    this.getAdjacent = function(firstGem) {
-      var adjacent, gem, index, queue;
-      adjacent = [];
+    this.getLinked = function(firstGem) {
+      var gem, index, linked, queue;
+      linked = [];
       queue = [this.gems.indexOf(firstGem)];
       while (queue.length) {
         index = queue.pop();
-        if (adjacent.indexOf(index) === -1) {
+        if (linked.indexOf(index) === -1) {
           gem = this.gems[index];
           if (gem && gem.color === firstGem.color) {
-            adjacent.push(index);
+            linked.push(index);
             if (index === 0 || (index + 1) % this.size) {
               queue.push(index + 1);
             }
@@ -186,13 +191,24 @@ Represents a polygonal jewel
           }
         }
       }
-      return adjacent;
+      if (linked.length >= this.matchNumber) {
+        return linked;
+      }
     };
-    return this.gems = (function() {
-      _results = [];
-      for (var _i = 0, _ref = this.size * this.size; 0 <= _ref ? _i < _ref : _i > _ref; 0 <= _ref ? _i++ : _i--){ _results.push(_i); }
-      return _results;
-    }).apply(this).map(randomGem);
+
+    /*
+    Checks end game conditions
+     */
+    this.isEndGame = function() {
+      return !this.gems.some((function(gem) {
+        return !!this.getLinked(gem);
+      }), this);
+    };
+    _results1 = [];
+    while (this.isEndGame()) {
+      _results1.push(this.gems = this.tiles.map(this.randomGem, this));
+    }
+    return _results1;
   });
 
 }).call(this);
