@@ -12,21 +12,44 @@
     </head>
 
     <body ng-app="gem-puzzle">
-        <section class="gem-grid" ng-controller="GemController as gemCtrl">
-            <div class="gem-cell gem-cell_animated" ng-repeat="gem in gemCtrl.gems">
-                <div class="gem gem_color_{{gem.color}} gem_highlight_{{gem.highlight}} gem_exploded_{{gem.exploded}}"
-                     ng-click="gemCtrl.explode(gem)"
-                     ng-mouseenter="gemCtrl.highlightOn(gem)"
-                     ng-mouseleave="gemCtrl.highlightOff()"
-                     style="transform: rotate({{gem.angle}}deg);">
-                    <svg class="gem__svg"
-                         viewBox="0 0 200 200"
-                         xmlns="http://www.w3.org/2000/svg"
-                         xmlns:xlink="http://www.w3.org/1999/xlink">
-                        <polygon class="gem__polygon" ng-attr-points="{{gem.points}}" />
-                    </svg>
+        <section class="gem-puzzle" ng-controller="GemController">
+            <div class="gem-message" ng-show="isGameOver()">
+                <h1>Game over!</h1>
+                <p>Your score is <strong>{{stats.totalScore}}</strong></p>
+                <button class="gem-button" ng-click="restart()">Restart</button>
+            </div>
+
+            <div class="gem-grid gem-grid_game-over_{{isGameOver()}}">
+                <div class="gem-cell gem-cell_animated" ng-repeat="gem in getGems()">
+                    <div class="gem gem_color_{{gem.color}} gem_highlight_{{gem.highlight}} gem_exploded_{{gem.exploded}}"
+                         ng-click="explode(gem)"
+                         ng-mouseenter="highlightOn(gem)"
+                         ng-mouseleave="highlightOff()"
+                         style="transform: rotate({{gem.angle}}deg);">
+                        <svg class="gem__svg"
+                             viewBox="0 0 200 200"
+                             xmlns="http://www.w3.org/2000/svg"
+                             xmlns:xlink="http://www.w3.org/1999/xlink">
+                            <polygon class="gem__polygon" ng-attr-points="{{gem.points}}" />
+                        </svg>
+                    </div>
+
+                    <span class="gem-count" ng-show="isFirstExploded(gem)">{{getExplodedCount()}}</span>
                 </div>
+            </div>
+
+            <div class="gem-stats">
+                <h2>Score</h2>
+                <ul>
+                    <li><strong>Gems:</strong> {{stats.gems}}</li>
+                    <li><strong>Matches:</strong> {{stats.strings}}</li>
+                    <li><strong>Best match:</strong> {{stats.maxString}}</li>
+                    <li>
+                        <big><strong>Total score:</strong> {{stats.totalScore}}</big>
+                    </li>
+                </ul>
             </div>
         </section>
     </body>
 </html>
+

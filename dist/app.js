@@ -12,6 +12,7 @@ Represents a polygonal jewel
       this.color = options.color, this.type = options.type;
       this.exploded = false;
       this.highlight = false;
+      this.explodedCount = 0;
       this.angle = Math.round(Math.random() * 360);
       this.points = this.getPolygonPoints();
     }
@@ -55,21 +56,116 @@ Represents a polygonal jewel
   app = angular.module('gem-puzzle', ['ngAnimate']);
 
   app.controller('GemController', function($scope, $timeout) {
-    var _i, _ref, _results, _results1;
-    this.matchNumber = 3;
-    this.size = 8;
-    this.tiles = (function() {
+    var animationDuration, endGame, exploded, gems, getLinked, highlighted, isEndGame, matchNumber, randomGem, reorderGems, saveStats, size;
+    matchNumber = 3;
+    size = 8;
+    gems = [];
+    highlighted = [];
+    exploded = [];
+    animationDuration = 300;
+    endGame = false;
+    $scope.stats = {
+      gems: 0,
+      strings: 0,
+      maxString: 0,
+      totalScore: 0
+    };
+    $scope.restart = function() {
+      var _i, _ref, _results, _results1;
+      endGame = false;
+
+      /*
+      Generate a board with at least one string of linked gems
+       */
       _results = [];
-      for (var _i = 0, _ref = this.size * this.size; 0 <= _ref ? _i < _ref : _i > _ref; 0 <= _ref ? _i++ : _i--){ _results.push(_i); }
+      while (isEndGame()) {
+        _results.push(gems = (function() {
+          _results1 = [];
+          for (var _i = 0, _ref = size * size; 0 <= _ref ? _i < _ref : _i > _ref; 0 <= _ref ? _i++ : _i--){ _results1.push(_i); }
+          return _results1;
+        }).apply(this).map(randomGem));
+      }
       return _results;
-    }).apply(this);
-    this.gems = [];
-    this.highlighted = [];
+    };
+
+    /*
+    Returns the list of gems for iteration
+     */
+    $scope.getGems = function() {
+      return gems;
+    };
+    $scope.isGameOver = function() {
+      return endGame;
+    };
+
+    /*
+    If the selected gem forms a string with adjusent gems of the
+    same color, they get "exploded"
+     */
+    $scope.explode = function(gem) {
+      exploded = getLinked(gem);
+      if (exploded) {
+        saveStats(exploded);
+        exploded.forEach(function(index) {
+          return gems[index].exploded = true;
+        });
+        return $timeout(function() {
+          exploded = null;
+          reorderGems();
+          return endGame = isEndGame();
+        }, animationDuration);
+      }
+    };
+
+    /*
+    Highlights a string of linked gems
+     */
+    $scope.highlightOn = function(gem) {
+      var linked;
+      linked = getLinked(gem);
+      if (linked) {
+        highlighted = linked.map(function(index) {
+          return gems[index];
+        });
+        return highlighted.forEach(function(gem) {
+          return gem.highlight = true;
+        });
+      }
+    };
+
+    /*
+    Un-highlights previously highlighted gems
+     */
+    $scope.highlightOff = function() {
+      highlighted.forEach(function(gem) {
+        return gem.highlight = false;
+      });
+      return highlighted.length = 0;
+    };
+    $scope.isFirstExploded = function(gem) {
+      return gem.exploded && gems[exploded[0]] === gem;
+    };
+    $scope.getExplodedCount = function() {
+      return exploded && exploded.length;
+    };
+
+    /*
+    Update statistical counters
+     */
+    saveStats = function(linked) {
+      var len;
+      len = linked.length;
+      $scope.stats.currentString = len;
+      $scope.stats.gems += len;
+      $scope.stats.strings += 1;
+      $scope.stats.maxString = Math.max(len, $scope.stats.maxString);
+      return $scope.stats.totalScore += Math.pow(2, len) + len % 2;
+    };
 
     /*
     Creates a gem with random type and color
      */
-    this.randomGem = function() {
+    randomGem = function() {
       return new Gem({
         color: Gem.Colors[Math.floor(Math.random() * Gem.Colors.length)],
         type: Gem.Types[Math.floor(Math.random() * Gem.Types.length)]
@@ -77,92 +173,40 @@ Represents a polygonal jewel
     };
 
     /*
-    If the selected gem forms a string with adjusent gems of the
-    same color, they get "exploded"
-     */
-    this.explode = function(gem) {
-      var linked;
-      linked = this.getLinked(gem);
-      if (linked) {
-        linked.forEach((function(_this) {
-          return function(index) {
-            return _this.gems[index].exploded = true;
-          };
-        })(this));
-        return $timeout((function(_this) {
-          return function() {
-            return _this.reorder();
-          };
-        })(this), 300);
-      }
-    };
-
-    /*
     Reorders the gems so that the exploded gems are replaced
     with the gems from the line above
      */
-    this.reorder = function() {
-      var _j, _ref1, _results1;
-      this.gems.forEach((function(_this) {
-        return function(gem, index) {
-          if (gem.exploded) {
-            return _this.gems[index] = null;
-          }
-        };
-      })(this));
-      return (function() {
-        _results1 = [];
-        for (var _j = _ref1 = this.size * this.size - 1; _ref1 <= 0 ? _j <= 0 : _j >= 0; _ref1 <= 0 ? _j++ : _j--){ _results1.push(_j); }
-        return _results1;
-      }).apply(this).forEach((function(_this) {
-        return function(index) {
-          var gem, upperIndex;
-          gem = _this.gems[index];
-          if (!gem) {
-            upperIndex = index;
-            while (upperIndex >= _this.size && !gem) {
-              upperIndex = upperIndex - _this.size;
-              gem = _this.gems[upperIndex];
-              _this.gems[upperIndex] = null;
-            }
-            if (gem) {
-              return _this.gems[index] = new Gem({
-                type: gem.type,
-                color: gem.color
-              });
-            } else {
-              return _this.gems[index] = _this.randomGem();
-            }
-          }
-        };
-      })(this));
-    };
-
-    /*
-    Highlights a string of linked gems
-     */
-    this.highlightOn = function(gem) {
-      var linked;
-      linked = this.getLinked(gem);
-      if (linked) {
-        return this.highlighted = linked.map((function(_this) {
-          return function(index) {
-            gem = _this.gems[index];
-            gem.highlight = true;
-            return gem;
-          };
-        })(this));
-      }
-    };
-
-    /*
-    Un-highlights previously highlighted gems
-     */
-    this.highlightOff = function() {
-      this.highlighted.forEach(function(gem) {
-        return gem.highlight = false;
+    reorderGems = function() {
+      var _i, _ref, _results;
+      gems.forEach(function(gem, index) {
+        if (gem.exploded) {
+          return gems[index] = null;
+        }
       });
-      return this.highlighted = [];
+      return (function() {
+        _results = [];
+        for (var _i = _ref = size * size - 1; _ref <= 0 ? _i <= 0 : _i >= 0; _ref <= 0 ? _i++ : _i--){ _results.push(_i); }
+        return _results;
+      }).apply(this).forEach(function(index) {
+        var gem, upperIndex;
+        gem = gems[index];
+        if (!gem) {
+          upperIndex = index;
+          while (upperIndex >= size && !gem) {
+            upperIndex = upperIndex - size;
+            gem = gems[upperIndex];
+            gems[upperIndex] = null;
+          }
+          if (gem) {
+            return gems[index] = new Gem({
+              type: gem.type,
+              color: gem.color
+            });
+          } else {
+            return gems[index] = randomGem();
+          }
+        }
+      });
     };
 
     /*
@@ -170,28 +214,28 @@ Represents a polygonal jewel
     The string can be a straight line or a polyline,
     but not a diagonal line
      */
-    this.getLinked = function(firstGem) {
+    getLinked = function(firstGem) {
       var gem, index, linked, queue;
       linked = [];
-      queue = [this.gems.indexOf(firstGem)];
+      queue = [gems.indexOf(firstGem)];
       while (queue.length) {
         index = queue.pop();
         if (linked.indexOf(index) === -1) {
-          gem = this.gems[index];
+          gem = gems[index];
           if (gem && gem.color === firstGem.color) {
             linked.push(index);
-            if (index === 0 || (index + 1) % this.size) {
+            if (index === 0 || (index + 1) % size) {
               queue.push(index + 1);
             }
-            if (index % this.size) {
+            if (index % size) {
               queue.push(index - 1);
             }
-            queue.push(index + this.size);
-            queue.push(index - this.size);
+            queue.push(index + size);
+            queue.push(index - size);
           }
         }
       }
-      if (linked.length >= this.matchNumber) {
+      if (linked.length >= matchNumber) {
         return linked;
       }
     };
@@ -199,16 +243,16 @@ Represents a polygonal jewel
     /*
     Checks end game conditions
      */
-    this.isEndGame = function() {
-      return !this.gems.some((function(gem) {
-        return !!this.getLinked(gem);
-      }), this);
+    isEndGame = function() {
+      return !gems.some(function(gem) {
+        return getLinked(gem);
+      });
     };
-    _results1 = [];
-    while (this.isEndGame()) {
-      _results1.push(this.gems = this.tiles.map(this.randomGem, this));
-    }
-    return _results1;
+
+    /*
+    Initialize
+     */
+    return $scope.restart();
   });
 
 }).call(this);
