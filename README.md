@@ -1,6 +1,6 @@
-ng-shariki
-==========
+ng-gem-puzzle
+=============
 
-An AngularJS implementation of [the original match-three game](http://en.wikipedia.org/wiki/Shariki).
+An AngularJS implementation of a match-three puzzle game.
 
 ![screenshot](http://i.imgur.com/0M2WsMR.png)
