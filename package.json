@@ -1,5 +1,5 @@
 {
-  "name": "ng-shariki",
+  "name": "ng-gem-puzzle",
   "version": "1.0.0",
   "description": "A match-three puzzle game in CoffeeScript and AngularJS.",
   "main": "index.html",

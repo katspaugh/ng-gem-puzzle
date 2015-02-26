@@ -1,15 +1,32 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <meta charset="utf-8" />
+        <title>ng-gem-puzzle</title>
+
+        <link rel="icon" type="image/svg+xml" href="logo.svg" />
         <link rel="stylesheet" href="css/main.css" type="text/css" />
+
         <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.13/angular.min.js"></script>
         <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.13/angular-animate.min.js"></script>
         <script src="dist/app.js"></script>
     </head>
 
-    <body ng-app="shariki">
+    <body ng-app="gem-puzzle">
         <section class="gem-grid" ng-controller="GemController as gemCtrl">
-            <div class="gem-cell gem-cell_animated" ng-include="'gem.html'" ng-repeat="gem in gemCtrl.gems">
+            <div class="gem-cell gem-cell_animated" ng-repeat="gem in gemCtrl.gems">
+                <div class="gem gem_color_{{gem.color}} gem_highlight_{{gem.highlight}} gem_exploded_{{gem.exploded}}"
+                     ng-click="gemCtrl.explode(gem)"
+                     ng-mouseenter="gemCtrl.highlightOn(gem)"
+                     ng-mouseleave="gemCtrl.highlightOff()"
+                     style="transform: rotate({{gem.angle}}deg);">
+                    <svg class="gem__svg"
+                         viewBox="0 0 200 200"
+                         xmlns="http://www.w3.org/2000/svg"
+                         xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <polygon class="gem__polygon" ng-attr-points="{{gem.points}}" />
+                    </svg>
+                </div>
             </div>
         </section>
     </body>

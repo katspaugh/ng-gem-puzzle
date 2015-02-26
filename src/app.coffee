@@ -45,7 +45,7 @@ Gem.Colors = [
 ]
 
 
-app = angular.module('shariki', ['ngAnimate']);
+app = angular.module('gem-puzzle', ['ngAnimate'])
 
 app.controller 'GemController', ($scope, $timeout) ->
     # How many gems must match
@@ -128,7 +128,7 @@ app.controller 'GemController', ($scope, $timeout) ->
     but not a diagonal line
     ###
     @getAdjacent = (firstGem) ->
-        # This is a queue-based flood fill algorythm.
+        # This is a queue-based flood fill algorithm.
         # See http://en.wikipedia.org/wiki/Flood_fill
         adjacent = []
         queue = [ @gems.indexOf firstGem ]

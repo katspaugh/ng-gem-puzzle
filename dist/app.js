@@ -52,7 +52,7 @@ Represents a polygonal jewel
 
   Gem.Colors = ['red', 'green', 'blue', 'yellow', 'violet'];
 
-  app = angular.module('shariki', ['ngAnimate']);
+  app = angular.module('gem-puzzle', ['ngAnimate']);
 
   app.controller('GemController', function($scope, $timeout) {
     var randomGem, _i, _ref, _results;
@@ -109,17 +109,26 @@ Represents a polygonal jewel
         _results = [];
         for (var _i = _ref = this.size * this.size - 1; _ref <= 0 ? _i <= 0 : _i >= 0; _ref <= 0 ? _i++ : _i--){ _results.push(_i); }
         return _results;
-      }).apply(this).map((function(_this) {
+      }).apply(this).forEach((function(_this) {
         return function(index) {
           var gem, upperIndex;
           gem = _this.gems[index];
-          upperIndex = index;
-          while (upperIndex >= _this.size && !gem) {
-            upperIndex = upperIndex - _this.size;
-            gem = _this.gems[upperIndex];
-            _this.gems[upperIndex] = null;
+          if (!gem) {
+            upperIndex = index;
+            while (upperIndex >= _this.size && !gem) {
+              upperIndex = upperIndex - _this.size;
+              gem = _this.gems[upperIndex];
+              _this.gems[upperIndex] = null;
+            }
+            if (gem) {
+              return _this.gems[index] = new Gem({
+                type: gem.type,
+                color: gem.color
+              });
+            } else {
+              return _this.gems[index] = randomGem();
+            }
           }
-          return _this.gems[index] = gem || randomGem();
         };
       })(this));
     };
