@@ -10,7 +10,8 @@ body {
 .gem-puzzle {
     position: relative;
     max-width: 900px;
-    margin: 30px auto;
+    margin: 20px auto;
+    padding: 0 20px;
 }
 
 .gem-message {
@@ -18,7 +19,9 @@ body {
     z-index: 2;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
+    -webkit-transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
     font-size: 3em;
     margin: 0;
     text-align: center;
@@ -55,20 +58,27 @@ body {
 }
 
 .gem-cell_animated.ng-enter {
-    transition: transform 100ms ease-in;
-    transform: translateY(-100%);
+    -webkit-transition: -webkit-transform 100ms ease-in;
+            transition: transform 100ms ease-in;
+    -webkit-transform: translateY(-100%);
+        -ms-transform: translateY(-100%);
+            transform: translateY(-100%);
 }
 
 .gem-cell_animated.ng-enter.ng-enter-active {
-    transform: none;
+    -webkit-transform: none;
+        -ms-transform: none;
+            transform: none;
 }
 
 @-webkit-keyframes spin {
     from {
-        transform: rotate(0deg);
+        -webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
     }
     to {
-        transform: rotate(360deg);
+        -webkit-transform: rotate(360deg);
+                transform: rotate(360deg);
     }
 }
 
@@ -82,18 +92,24 @@ body {
 .gem__svg {
     width: 100%;
     height: 100%;
-    transition: opacity 300ms ease-out,
+    -webkit-transition: opacity 300ms ease-out,
+                -webkit-transform 300ms ease-out;
+            transition: opacity 300ms ease-out,
                 transform 300ms ease-out;
 }
 
 .gem_highlight_true .gem__svg {
-    transform: scale(1.1);
+    -webkit-transform: scale(1.1);
+        -ms-transform: scale(1.1);
+            transform: scale(1.1);
     cursor: pointer;
 }
 
 .gem_exploded_true .gem__svg {
     opacity: 0;
-    transform: scale(2);
+    -webkit-transform: scale(2);
+        -ms-transform: scale(2);
+            transform: scale(2);
 }
 
 .gem__polygon {
@@ -128,8 +144,8 @@ body {
 .gem-stats {
     position: absolute;
     z-index: 1;
-    left: 550px;
-    right: 0;
+    left: 560px;
+    right: 20px;
     top: 0;
     font-size: 1.5em;
     color: #fff;
@@ -154,14 +170,20 @@ body {
     color: #fff;
     text-shadow: 0 0 2px #333;
     font-size: 10em;
-    transform: translate(-50%, -50%) scale(0.1);
-    transition: opacity 300ms ease-out,
+    -webkit-transform: translate(-50%, -50%) scale(0.1);
+        -ms-transform: translate(-50%, -50%) scale(0.1);
+            transform: translate(-50%, -50%) scale(0.1);
+    -webkit-transition: opacity 300ms ease-out,
+                -webkit-transform 300ms ease-out;
+            transition: opacity 300ms ease-out,
                 transform 300ms ease-out;
     opacity: 0;
 }
 
 
 .gem-count.ng-hide-remove-active {
-    transform: translate(-50%, -50%) scale(1);
+    -webkit-transform: translate(-50%, -50%) scale(1);
+        -ms-transform: translate(-50%, -50%) scale(1);
+            transform: translate(-50%, -50%) scale(1);
     opacity: 0.5;
 }

@@ -1,0 +1,189 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-size: 16px;
+    background: url('http://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Gems_P4061909.jpg/1024px-Gems_P4061909.jpg')
+                no-repeat top center #fff;
+    background-size: cover;
+}
+
+.gem-puzzle {
+    position: relative;
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 0 20px;
+}
+
+.gem-message {
+    position: absolute;
+    z-index: 2;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+    font-size: 3em;
+    margin: 0;
+    text-align: center;
+    color: #fff;
+    padding: 30px;
+    background: rgba(0, 50, 100, 0.8);
+    border-radius: 8px;
+}
+
+.gem-button {
+    font-size: 0.5em;
+    margin-top: 20px;
+    padding: 6px 12px;
+    border: 1px solid #333;
+    border-radius: 4px;
+    background: #61D9D6;
+}
+
+.gem-grid {
+    width: 512px;
+    height: 512px;
+    background: rgba(0, 50, 100, 0.25);
+    border-radius: 8px;
+    padding: 5px;
+}
+
+.gem-cell {
+    float: left;
+    position: relative;
+}
+
+.gem-cell:nth-child(8n + 1) {
+    clear: left;
+}
+
+.gem-cell_animated.ng-enter {
+    -webkit-transition: -webkit-transform 100ms ease-in;
+            transition: transform 100ms ease-in;
+    -webkit-transform: translateY(-100%);
+        -ms-transform: translateY(-100%);
+            transform: translateY(-100%);
+}
+
+.gem-cell_animated.ng-enter.ng-enter-active {
+    -webkit-transform: none;
+        -ms-transform: none;
+            transform: none;
+}
+
+@-webkit-keyframes spin {
+    from {
+        -webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+    }
+    to {
+        -webkit-transform: rotate(360deg);
+                transform: rotate(360deg);
+    }
+}
+
+.gem {
+    -webkit-animation: spin 20s infinite linear;
+    width: 60px;
+    height: 60px;
+    padding: 2px;
+}
+
+.gem__svg {
+    width: 100%;
+    height: 100%;
+    -webkit-transition: opacity 300ms ease-out,
+                -webkit-transform 300ms ease-out;
+            transition: opacity 300ms ease-out,
+                transform 300ms ease-out;
+}
+
+.gem_highlight_true .gem__svg {
+    -webkit-transform: scale(1.1);
+        -ms-transform: scale(1.1);
+            transform: scale(1.1);
+    cursor: pointer;
+}
+
+.gem_exploded_true .gem__svg {
+    opacity: 0;
+    -webkit-transform: scale(2);
+        -ms-transform: scale(2);
+            transform: scale(2);
+}
+
+.gem__polygon {
+    stroke-width: 8px;
+    stroke: #fff;
+}
+
+.gem_color_red .gem__polygon {
+    fill: #F04333;
+}
+
+.gem_color_green .gem__polygon {
+    fill: #8BE66A;
+}
+
+.gem_color_blue .gem__polygon {
+    fill: #61D9D6;
+}
+
+.gem_color_violet .gem__polygon {
+    fill: #E80CF0;
+}
+
+.gem_color_yellow .gem__polygon {
+    fill: #FF8C27;
+}
+
+.gem-grid_game-over_true {
+    -webkit-filter: grayscale(70%);
+}
+
+.gem-stats {
+    position: absolute;
+    z-index: 1;
+    left: 560px;
+    right: 20px;
+    top: 0;
+    font-size: 1.5em;
+    color: #fff;
+    padding: 0 30px;
+    background: rgba(0, 50, 100, 0.5);
+    border-radius: 8px;
+}
+
+.gem-stats ul {
+    padding-left: 0;
+}
+
+.gem-stats li {
+    margin-bottom: 0.5em;
+}
+
+.gem-count {
+    position: absolute;
+    z-index: 1;
+    left: 50%;
+    top: 50%;
+    color: #fff;
+    text-shadow: 0 0 2px #333;
+    font-size: 10em;
+    -webkit-transform: translate(-50%, -50%) scale(0.1);
+        -ms-transform: translate(-50%, -50%) scale(0.1);
+            transform: translate(-50%, -50%) scale(0.1);
+    -webkit-transition: opacity 300ms ease-out,
+                -webkit-transform 300ms ease-out;
+            transition: opacity 300ms ease-out,
+                transform 300ms ease-out;
+    opacity: 0;
+}
+
+
+.gem-count.ng-hide-remove-active {
+    -webkit-transform: translate(-50%, -50%) scale(1);
+        -ms-transform: translate(-50%, -50%) scale(1);
+            transform: translate(-50%, -50%) scale(1);
+    opacity: 0.5;
+}
