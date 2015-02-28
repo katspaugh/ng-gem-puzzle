@@ -1,3 +1,6 @@
+app = angular.module('gem-puzzle', ['ngAnimate', 'ngMaterial'])
+
+
 ###
 Represents a polygonal jewel
 ###
@@ -7,7 +10,6 @@ class Gem
         @exploded = false
         @highlight = false
         @explodedCount = 0
-        @angle = Math.round Math.random() * 360
         @points = @getPolygonPoints()
 
     getPolygonPoints: ->
@@ -46,9 +48,7 @@ Gem.Colors = [
 ]
 
 
-app = angular.module('gem-puzzle', ['ngAnimate'])
-
-app.controller 'GemController', ($scope, $timeout) ->
+app.controller 'GemController', ($scope, $timeout, $mdDialog) ->
     # How many gems must match
     matchNumber = 3
     # The size of one side of the board
@@ -65,15 +65,20 @@ app.controller 'GemController', ($scope, $timeout) ->
     endGame = false
 
     # Statistics
-    $scope.stats = {
-        gems: 0,
-        strings: 0,
-        maxString: 0,
-        totalScore: 0
-    }
+    $scope.stats = {}
+
+    $scope.getSize = ->
+        size
 
     $scope.restart = ->
         endGame = false
+
+        $scope.stats =
+            gems: 0
+            strings: 0
+            maxString: 0
+            totalScore: 0
+
         ###
         Generate a board with at least one string of linked gems
         ###
@@ -101,7 +106,7 @@ app.controller 'GemController', ($scope, $timeout) ->
             $timeout(->
                 exploded = null
                 reorderGems()
-                endGame = isEndGame()
+                setEngGame isEndGame()
             animationDuration)
 
     ###
@@ -203,7 +208,16 @@ app.controller 'GemController', ($scope, $timeout) ->
         # it's the end of the game
         !gems.some (gem) -> getLinked gem
 
-    ###
-    Initialize
-    ###
-    $scope.restart()
+    setEngGame = (val) ->
+        endGame = val
+        showGameOver() if endGame
+
+    showGameOver = () ->
+        upperScope = $scope
+        $mdDialog.show
+            controller: ($scope) ->
+                $scope.restart = ->
+                    upperScope.restart()
+                    $mdDialog.hide()
+                $scope.stats = upperScope.stats
+            templateUrl: 'dialog.html'
