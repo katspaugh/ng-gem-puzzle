@@ -2,7 +2,7 @@
 (function() {
   var Gem, app;
 
-  app = angular.module('gem-puzzle', ['ngAnimate', 'ngMaterial']);
+  app = angular.module('gem-puzzle', ['ngAnimate']);
 
 
   /*
@@ -10,11 +10,11 @@
    */
 
   Gem = (function() {
-    function Gem(options) {
-      this.color = options.color, this.type = options.type;
+    function Gem(color, type) {
+      this.color = color;
+      this.type = type;
       this.exploded = false;
       this.highlight = false;
-      this.explodedCount = 0;
       this.points = this.getPolygonPoints();
     }
 
@@ -54,8 +54,8 @@
 
   Gem.Colors = ['red', 'green', 'blue', 'yellow', 'violet'];
 
-  app.controller('GemController', function($scope, $timeout, $mdDialog) {
-    var animationDuration, endGame, exploded, gems, getLinked, highlighted, isEndGame, matchNumber, randomGem, reorderGems, saveStats, setEngGame, showGameOver, size;
+  app.controller('GemController', function($scope, $timeout) {
+    var animationDuration, endGame, exploded, gems, getLinked, highlighted, isEndGame, matchNumber, randomGem, reorderGems, size, updateStats;
     matchNumber = 3;
     size = 8;
     gems = [];
@@ -64,9 +64,6 @@
     animationDuration = 300;
     endGame = false;
     $scope.stats = {};
-    $scope.getSize = function() {
-      return size;
-    };
     $scope.restart = function() {
       var _i, _ref, _results, _results1;
       endGame = false;
@@ -97,6 +94,10 @@
     $scope.getGems = function() {
       return gems;
     };
+
+    /*
+    Checks if the game if over
+     */
     $scope.isGameOver = function() {
       return endGame;
     };
@@ -108,16 +109,16 @@
     $scope.explode = function(gem) {
       exploded = getLinked(gem);
       if (exploded) {
-        saveStats(exploded);
+        updateStats(exploded.length);
         exploded.forEach(function(index) {
           return gems[index].exploded = true;
         });
-        return $timeout(function() {
-          exploded = null;
-          reorderGems();
-          return setEngGame(isEndGame());
-        }, animationDuration);
       }
+      return $timeout(function() {
+        exploded = null;
+        reorderGems();
+        return endGame = isEndGame();
+      }, animationDuration);
     };
 
     /*
@@ -145,7 +146,11 @@
       });
       return highlighted.length = 0;
     };
-    $scope.isFirstExploded = function(gem) {
+
+    /*
+    Checks if a gem is the one initially selected
+     */
+    $scope.initiatedExplosion = function(gem) {
       return gem.exploded && gems[exploded[0]] === gem;
     };
     $scope.getExplodedCount = function() {
@@ -155,10 +160,7 @@
     /*
     Update statistical counters
      */
-    saveStats = function(linked) {
-      var len;
-      len = linked.length;
-      $scope.stats.currentString = len;
+    updateStats = function(len) {
       $scope.stats.gems += len;
       $scope.stats.strings += 1;
       $scope.stats.maxString = Math.max(len, $scope.stats.maxString);
@@ -169,10 +171,7 @@
     Creates a gem with random type and color
      */
     randomGem = function() {
-      return new Gem({
-        color: Gem.Colors[Math.floor(Math.random() * Gem.Colors.length)],
-        type: Gem.Types[Math.floor(Math.random() * Gem.Types.length)]
-      });
+      return new Gem(Gem.Colors[Math.floor(Math.random() * Gem.Colors.length)], Gem.Types[Math.floor(Math.random() * Gem.Types.length)]);
     };
 
     /*
@@ -201,10 +200,7 @@
             gems[upperIndex] = null;
           }
           if (gem) {
-            return gems[index] = new Gem({
-              type: gem.type,
-              color: gem.color
-            });
+            return gems[index] = new Gem(gem.color, gem.type);
           } else {
             return gems[index] = randomGem();
           }
@@ -246,29 +242,9 @@
     /*
     Checks end game conditions
      */
-    isEndGame = function() {
+    return isEndGame = function() {
       return !gems.some(function(gem) {
         return getLinked(gem);
-      });
-    };
-    setEngGame = function(val) {
-      endGame = val;
-      if (endGame) {
-        return showGameOver();
-      }
-    };
-    return showGameOver = function() {
-      var upperScope;
-      upperScope = $scope;
-      return $mdDialog.show({
-        controller: function($scope) {
-          $scope.restart = function() {
-            upperScope.restart();
-            return $mdDialog.hide();
-          };
-          return $scope.stats = upperScope.stats;
-        },
-        templateUrl: 'dialog.html'
       });
     };
   });

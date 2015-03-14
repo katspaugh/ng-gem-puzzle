@@ -1,6 +1,55 @@
 body {
-    margin: 10px auto;
-    max-width: 900px;
+    padding: 10px;
+    margin: auto;
+}
+
+@media (min-width: 1000px) {
+    body {
+        max-width: 900px;
+    }
+}
+
+.gem-puzzle {
+    position: relative;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-flex-flow: row wrap;
+        -ms-flex-flow: row wrap;
+            flex-flow: row wrap;
+}
+
+.gem-panel {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 30px;
+}
+
+.gem-board {
+    -webkit-box-flex: 7;
+    -webkit-flex: 7;
+        -ms-flex: 7;
+            flex: 7;
+    min-width: 480px;
+    margin-bottom: 10px;
+}
+
+.gem-grid {
+    overflow: hidden;
+    width: 480px;
+    margin: auto;
+}
+
+.gem-cell {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    float: left;
+}
+
+.gem-cell:nth-child(8n+1) {
+    clear: left;
 }
 
 .gem-cell_animated.ng-enter {
@@ -44,22 +93,22 @@ body {
             animation: spin 20s infinite linear;
 }
 
-md-grid-tile:nth-child(2n) .gem {
+.gem-cell:nth-child(2n) .gem {
     -webkit-animation-direction: reverse;
             animation-direction: reverse;
 }
 
-md-grid-tile:nth-child(2n+1).gem {
+.gem-cell:nth-child(2n+1).gem {
     -webkit-animation-delay: 300ms;
             animation-delay: 300ms;
 }
 
-md-grid-tile:nth-child(2n+2) .gem {
+.gem-cell:nth-child(2n+2) .gem {
     -webkit-animation-delay: 450ms;
             animation-delay: 450ms;
 }
 
-md-grid-tile:nth-child(2n+3) .gem {
+.gem-cell:nth-child(2n+3) .gem {
     -webkit-animation-delay: 600ms;
             animation-delay: 600ms;
 }
@@ -135,7 +184,6 @@ md-grid-tile:nth-child(2n+3) .gem {
     opacity: 0;
 }
 
-
 .gem-count.ng-hide-remove-active {
     -webkit-transform: translate(-50%, -50%) scale(1);
         -ms-transform: translate(-50%, -50%) scale(1);
@@ -143,6 +191,59 @@ md-grid-tile:nth-child(2n+3) .gem {
     opacity: 0.5;
 }
 
+.gem-stats {
+    -webkit-box-flex: 3;
+    -webkit-flex: 3;
+        -ms-flex: 3;
+            flex: 3;
+    margin-left: 2em;
+    white-space: nowrap;
+}
+
 .gem-stats h2 {
     margin-top: 0;
+}
+
+.gem-stats ul {
+    padding-left: 1em;
+}
+
+.gem-dialog {
+    position: absolute;
+    z-index: 2;
+    left: 50%;
+    top: 50%;
+    -webkit-transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+    background: #fff;
+    text-align: center;
+    font-size: 2em;
+    padding: 2em;
+}
+
+.gem-dialog_animated.ng-enter {
+    -webkit-transition: -webkit-transform 300ms ease-in;
+            transition: transform 300ms ease-in;
+    -webkit-transform: scale(0.1);
+        -ms-transform: scale(0.1);
+            transform: scale(0.1);
+}
+
+.gem-dialog_animated.ng-enter.ng-enter-active {
+    -webkit-transform: none;
+        -ms-transform: none;
+            transform: none;
+}
+
+.gem-dialog h2 {
+    margin-top: 0;
+}
+
+.gem-dialog button {
+    font-size: 1em;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 0.2em 0.4em;
 }

@@ -4,61 +4,61 @@
         <meta charset="utf-8" />
         <title>ng-gem-puzzle</title>
 
-        <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/angular_material/0.8.2/angular-material.min.css" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
         <link rel="stylesheet" href="dist/main.css" type="text/css" />
 
         <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.13/angular.min.js"></script>
         <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.13/angular-animate.min.js"></script>
-        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.13/angular-aria.min.js"></script>
-
-        <script src="//ajax.googleapis.com/ajax/libs/angular_material/0.8.2/angular-material.min.js"></script>
-
         <script src="dist/app.js"></script>
     </head>
 
     <body ng-app="gem-puzzle">
-        <div layout="row" layout-wrap ng-controller="GemController" ng-init="restart()">
-            <div flex="70" class="gem-board">
-                <md-card>
-                    <md-content class="md-padding">
-                        <md-grid-list class="gem-grid gem-grid_game-over_{{isGameOver()}}"
-                                      md-cols="{{getSize()}}" md-row-height="1:1">
-                            <md-grid-tile class="gem-cell gem-cell_animated"
-                                          ng-repeat="gem in getGems()">
-                                <div ng-click="explode(gem)"
-                                     ng-mouseenter="highlightOn(gem)"
-                                     ng-mouseleave="highlightOff()"
-                                     class="gem gem_color_{{gem.color}} gem_highlight_{{gem.highlight}} gem_exploded_{{gem.exploded}}">
-                                    <svg class="gem__svg"
-                                         viewBox="0 0 200 200"
-                                         xmlns="http://www.w3.org/2000/svg"
-                                         xmlns:xlink="http://www.w3.org/1999/xlink">
-                                        <polygon class="gem__polygon"
-                                                 ng-attr-points="{{gem.points}}" />
-                                    </svg>
-                                </div>
+        <div class="gem-puzzle" ng-controller="GemController" ng-init="restart()">
+            <div class="gem-board gem-panel">
+                <div class="gem-grid gem-grid_game-over_{{isGameOver()}}">
+                    <div class="gem-cell gem-cell_animated"
+                         ng-repeat="gem in getGems()">
+                        <div class="gem gem_color_{{gem.color}} gem_highlight_{{gem.highlight}} gem_exploded_{{gem.exploded}}"
+                             ng-click="explode(gem)"
+                             ng-mouseenter="highlightOn(gem)"
+                             ng-mouseleave="highlightOff()">
+                            <svg class="gem__svg"
+                                 viewBox="0 0 200 200"
+                                 xmlns="http://www.w3.org/2000/svg"
+                                 xmlns:xlink="http://www.w3.org/1999/xlink">
+                                <polygon class="gem__polygon"
+                                         ng-attr-points="{{gem.points}}" />
+                            </svg>
+                        </div>
 
-                                <span class="gem-count" ng-show="isFirstExploded(gem)">
-                                    {{getExplodedCount()}}
-                                </span>
-                            </md-grid-tile>
-                        </md-grid-list>
-                    </md-content>
-                </md-card>
+                        <span class="gem-count" ng-show="initiatedExplosion(gem)">
+                            {{getExplodedCount()}}
+                        </span>
+                    </div>
+                </div>
             </div>
 
-            <div flex="30" class="gem-stats">
-                <md-card>
-                    <md-content class="md-padding">
-                        <h2>Score</h2>
-                        <ul>
-                            <li><strong>Gems:</strong> {{stats.gems}}</li>
-                            <li><strong>Matches:</strong> {{stats.strings}}</li>
-                            <li><strong>Best match:</strong> {{stats.maxString}}</li>
-                            <li><big><strong>Total score:</strong> {{stats.totalScore}}</big></li>
-                        </ul>
-                    </md-content>
-                </md-card>
+            <div class="gem-stats gem-panel">
+                <h2>Score</h2>
+                <ul>
+                    <li><strong>Gems:</strong> {{stats.gems}}</li>
+                    <li><strong>Matches:</strong> {{stats.strings}}</li>
+                    <li><strong>Longest match:</strong> {{stats.maxString}}</li>
+                    <li><big><strong>Total score:</strong> {{stats.totalScore}}</big></li>
+                </ul>
+            </div>
+
+            <div class="gem-dialog gem-dialog_animated gem-panel" ng-show="isGameOver()">
+                <h2>Game over!</h2>
+
+                <p>
+                    Your score is {{ stats.totalScore }}
+                </p>
+
+                <button ng-click="restart()">
+                    Restart
+                </button>
             </div>
         </div>
     </body>

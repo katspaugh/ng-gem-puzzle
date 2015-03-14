@@ -1,223 +1,210 @@
-app = angular.module('gem-puzzle', ['ngAnimate', 'ngMaterial'])
+app = angular.module('gem-puzzle', ['ngAnimate'])
 
 
 ###
 Represents a polygonal jewel
 ###
 class Gem
-    constructor: (options) ->
-        {@color, @type} = options
-        @exploded = false
-        @highlight = false
-        @explodedCount = 0
-        @points = @getPolygonPoints()
+  constructor: (color, type) ->
+    @color = color
+    @type = type
+    @exploded = false
+    @highlight = false
+    @points = @getPolygonPoints()
 
-    getPolygonPoints: ->
-        size = 200
-        center = size / 2
-        base = 2 * Math.PI / @type
-        ([0...@type].map (index) ->
-            angle = base * (index + 0.5)
-            ([
-                center + center * Math.cos(angle),
-                center + center * Math.sin(angle)
-            ].map (n) ->
-                n.toFixed(0)
-            ).join ' '
-        ).join ','
+  getPolygonPoints: ->
+    size = 200
+    center = size / 2
+    base = 2 * Math.PI / @type
+    ([0...@type].map (index) ->
+      angle = base * (index + 0.5)
+      ([
+        center + center * Math.cos(angle)
+        center + center * Math.sin(angle)
+      ].map (n) ->
+        n.toFixed(0)
+      ).join ' '
+    ).join ','
 
 ###
 The type of gem determines how many angles it has
 ###
 Gem.Types = [
-    5,
-    6,
-    8,
-    12
+  5
+  6
+  8
+  12
 ]
 
 ###
 The color of the gem
 ###
 Gem.Colors = [
-    'red'
-    'green'
-    'blue'
-    'yellow',
-    'violet'
+  'red'
+  'green'
+  'blue'
+  'yellow'
+  'violet'
 ]
 
 
-app.controller 'GemController', ($scope, $timeout, $mdDialog) ->
-    # How many gems must match
-    matchNumber = 3
-    # The size of one side of the board
-    size = 8
-    # This is the array of gems on the board
-    gems = []
-    # A temporary array of currently highlighted gems
-    highlighted = []
-    # A temporary array of indexes of currently exploded gems
-    exploded = []
-    # Animation diration
-    animationDuration = 300
-    # Whether game is over or not
+app.controller 'GemController', ($scope, $timeout) ->
+  # How many gems must match
+  matchNumber = 3
+  # The size of one side of the board
+  size = 8
+  # This is the array of gems on the board
+  gems = []
+  # A temporary array of currently highlighted gems
+  highlighted = []
+  # A temporary array of indexes of currently exploded gems
+  exploded = []
+  # Animation diration
+  animationDuration = 300
+  # Whether game is over or not
+  endGame = false
+
+  # Statistics
+  $scope.stats = {}
+
+  $scope.restart = ->
     endGame = false
 
-    # Statistics
-    $scope.stats = {}
-
-    $scope.getSize = ->
-        size
-
-    $scope.restart = ->
-        endGame = false
-
-        $scope.stats =
-            gems: 0
-            strings: 0
-            maxString: 0
-            totalScore: 0
-
-        ###
-        Generate a board with at least one string of linked gems
-        ###
-        while isEndGame()
-            gems = [0...(size * size)].map randomGem
+    $scope.stats = {
+      gems: 0
+      strings: 0
+      maxString: 0
+      totalScore: 0
+    }
 
     ###
-    Returns the list of gems for iteration
+    Generate a board with at least one string of linked gems
     ###
-    $scope.getGems = ->
-        return gems
+    while isEndGame()
+      gems = [0...(size * size)].map randomGem
 
-    $scope.isGameOver = ->
-        return endGame;
+  ###
+  Returns the list of gems for iteration
+  ###
+  $scope.getGems = ->
+    gems
 
-    ###
-    If the selected gem forms a string with adjusent gems of the
-    same color, they get "exploded"
-    ###
-    $scope.explode = (gem) ->
-        exploded = getLinked gem
-        if exploded
-            saveStats(exploded)
-            exploded.forEach (index) -> gems[index].exploded = true
-            $timeout(->
-                exploded = null
-                reorderGems()
-                setEngGame isEndGame()
-            animationDuration)
+  ###
+  Checks if the game if over
+  ###
+  $scope.isGameOver = ->
+    endGame
 
-    ###
-    Highlights a string of linked gems
-    ###
-    $scope.highlightOn = (gem) ->
-        linked = getLinked(gem)
-        if linked
-            highlighted = linked.map (index) -> gems[index]
-            highlighted.forEach (gem) -> gem.highlight = true
+  ###
+  If the selected gem forms a string with adjusent gems of the
+  same color, they get "exploded"
+  ###
+  $scope.explode = (gem) ->
+    exploded = getLinked gem
+    if exploded
+      updateStats(exploded.length)
+      exploded.forEach (index) -> gems[index].exploded = true
+    $timeout(->
+      exploded = null
+      reorderGems()
+      endGame = isEndGame()
+    animationDuration)
 
-    ###
-    Un-highlights previously highlighted gems
-    ###
-    $scope.highlightOff = ->
-        highlighted.forEach (gem) -> gem.highlight = false
-        highlighted.length = 0
+  ###
+  Highlights a string of linked gems
+  ###
+  $scope.highlightOn = (gem) ->
+    linked = getLinked(gem)
+    if linked
+      highlighted = linked.map (index) -> gems[index]
+      highlighted.forEach (gem) -> gem.highlight = true
 
-    $scope.isFirstExploded = (gem) ->
-        gem.exploded && gems[exploded[0]] == gem
+  ###
+  Un-highlights previously highlighted gems
+  ###
+  $scope.highlightOff = ->
+    highlighted.forEach (gem) -> gem.highlight = false
+    highlighted.length = 0
 
-    $scope.getExplodedCount = ->
-        exploded && exploded.length
+  ###
+  Checks if a gem is the one initially selected
+  ###
+  $scope.initiatedExplosion = (gem) ->
+    gem.exploded and gems[exploded[0]] == gem
 
-    ###
-    Update statistical counters
-    ###
-    saveStats = (linked) ->
-        len = linked.length
-        $scope.stats.currentString = len
-        $scope.stats.gems += len
-        $scope.stats.strings += 1
-        $scope.stats.maxString = Math.max(len, $scope.stats.maxString)
-        ## longer strings give exponentially bigger score
-        $scope.stats.totalScore += Math.pow(2, len) + len % 2
+  $scope.getExplodedCount = ->
+    exploded and exploded.length
 
-    ###
-    Creates a gem with random type and color
-    ###
-    randomGem = ->
-        new Gem {
-            color: Gem.Colors[Math.floor Math.random() * Gem.Colors.length]
-            type: Gem.Types[Math.floor Math.random() * Gem.Types.length]
-        }
+  ###
+  Update statistical counters
+  ###
+  updateStats = (len) ->
+    $scope.stats.gems += len
+    $scope.stats.strings += 1
+    $scope.stats.maxString = Math.max(len, $scope.stats.maxString)
+    ## longer strings give exponentially bigger score
+    $scope.stats.totalScore += Math.pow(2, len) + len % 2
 
-    ###
-    Reorders the gems so that the exploded gems are replaced
-    with the gems from the line above
-    ###
-    reorderGems = ->
-        gems.forEach (gem, index) ->
-            if gem.exploded
-                gems[index] = null
+  ###
+  Creates a gem with random type and color
+  ###
+  randomGem = ->
+    new Gem(
+      Gem.Colors[Math.floor Math.random() * Gem.Colors.length]
+      Gem.Types[Math.floor Math.random() * Gem.Types.length]
+    )
 
-        [(size * size - 1)..0].forEach (index) ->
-            gem = gems[index]
-            if not gem
-                upperIndex = index
-                while upperIndex >= size and not gem
-                    upperIndex = upperIndex - size
-                    gem = gems[upperIndex]
-                    gems[upperIndex] = null
-                # If there's a gem above the removed one, it falls down.
-                # Otherwise, a new random gem falls down.
-                if gem
-                    gems[index] = new Gem { type: gem.type, color: gem.color }
-                else
-                    gems[index] = randomGem()
+  ###
+  Reorders the gems so that the exploded gems are replaced
+  with the gems from the line above
+  ###
+  reorderGems = ->
+    gems.forEach (gem, index) ->
+      gems[index] = null if gem.exploded
 
-    ###
-    Gets a string of subsequent gems of the same color.
-    The string can be a straight line or a polyline,
-    but not a diagonal line
-    ###
-    getLinked = (firstGem) ->
-        # This is a queue-based flood fill algorithm.
-        # See http://en.wikipedia.org/wiki/Flood_fill
-        linked = []
-        queue = [ gems.indexOf firstGem ]
-        while queue.length
-            index = queue.pop()
-            if linked.indexOf(index) is -1
-                gem = gems[index]
-                if gem and gem.color is firstGem.color
-                    linked.push(index)
-                    if index is 0 or (index + 1) % size
-                        queue.push(index + 1)
-                    if index % size
-                        queue.push(index - 1)
-                    queue.push(index + size)
-                    queue.push(index - size)
-        linked if linked.length >= matchNumber
+    [(size * size - 1)..0].forEach (index) ->
+      gem = gems[index]
+      if not gem
+        upperIndex = index
+        while upperIndex >= size and not gem
+          upperIndex = upperIndex - size
+          gem = gems[upperIndex]
+          gems[upperIndex] = null
+        # If there's a gem above the removed one, it falls down.
+        # Otherwise, a new random gem falls down.
+        if gem
+          gems[index] = new Gem gem.color, gem.type
+        else
+          gems[index] = randomGem()
 
-    ###
-    Checks end game conditions
-    ###
-    isEndGame = ->
-        # If none of the gems are linked to 2 or more gems,
-        # it's the end of the game
-        !gems.some (gem) -> getLinked gem
+  ###
+  Gets a string of subsequent gems of the same color.
+  The string can be a straight line or a polyline,
+  but not a diagonal line
+  ###
+  getLinked = (firstGem) ->
+    # This is a queue-based flood fill algorithm.
+    # See http://en.wikipedia.org/wiki/Flood_fill
+    linked = []
+    queue = [ gems.indexOf firstGem ]
+    while queue.length
+      index = queue.pop()
+      if linked.indexOf(index) is -1
+        gem = gems[index]
+        if gem and gem.color is firstGem.color
+          linked.push(index)
+          if index is 0 or (index + 1) % size
+            queue.push(index + 1)
+          if index % size
+            queue.push(index - 1)
+          queue.push(index + size)
+          queue.push(index - size)
+    linked if linked.length >= matchNumber
 
-    setEngGame = (val) ->
-        endGame = val
-        showGameOver() if endGame
-
-    showGameOver = () ->
-        upperScope = $scope
-        $mdDialog.show
-            controller: ($scope) ->
-                $scope.restart = ->
-                    upperScope.restart()
-                    $mdDialog.hide()
-                $scope.stats = upperScope.stats
-            templateUrl: 'dialog.html'
+  ###
+  Checks end game conditions
+  ###
+  isEndGame = ->
+    # If none of the gems are linked to 2 or more gems,
+    # it's the end of the game
+    !gems.some (gem) -> getLinked gem
