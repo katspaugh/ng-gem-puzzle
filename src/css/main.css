@@ -1,47 +1,32 @@
 body {
-    padding: 10px;
-    margin: auto;
-}
-
-@media (min-width: 1000px) {
-    body {
-        max-width: 900px;
-    }
+    padding: 0;
+    margin: 10px;
+    background: #fff;
+    user-select: none;
+    font-family: Helvetica, sans-serif;
+    font-size: 13px;
+    overflow: hidden;
 }
 
 .gem-puzzle {
     position: relative;
-    display: flex;
-    flex-flow: row wrap;
+    padding: 10px;
+    margin: auto;
 }
 
 .gem-panel {
     border: 1px solid #ddd;
     border-radius: 6px;
-    padding: 30px;
-}
-
-.gem-board {
-    flex: 7;
-    min-width: 480px;
-    margin-bottom: 10px;
+    padding: 10px;
 }
 
 .gem-grid {
-    overflow: hidden;
-    width: 480px;
     margin: auto;
 }
 
 .gem-cell {
     position: relative;
-    width: 60px;
-    height: 60px;
     float: left;
-}
-
-.gem-cell:nth-child(8n+1) {
-    clear: left;
 }
 
 .gem-cell_animated.ng-enter {
@@ -148,17 +133,20 @@ body {
 }
 
 .gem-stats {
-    flex: 3;
-    margin-left: 2em;
     white-space: nowrap;
-}
-
-.gem-stats h2 {
-    margin-top: 0;
+    clear: both;
+    padding-top: 20px
 }
 
 .gem-stats ul {
-    padding-left: 1em;
+    margin: 0;
+    padding: 0 0.5em;
+}
+
+.gem-stats li {
+    display: inline-block;
+    width: 33%;
+    color: #777;
 }
 
 .gem-dialog {

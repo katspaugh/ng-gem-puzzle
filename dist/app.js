@@ -55,14 +55,17 @@
   Gem.Colors = ['red', 'green', 'blue', 'yellow', 'violet'];
 
   app.controller('GemController', function($scope, $timeout) {
-    var animationDuration, endGame, exploded, gems, getLinked, highlighted, isEndGame, matchNumber, randomGem, reorderGems, size, updateStats;
+    var animationDuration, cols, endGame, exploded, gems, getLinked, highlighted, isEndGame, matchNumber, randomGem, reorderGems, rows, updateStats;
     matchNumber = 3;
-    size = 8;
+    cols = 6;
+    rows = 11;
     gems = [];
     highlighted = [];
     exploded = [];
     animationDuration = 300;
     endGame = false;
+    $scope.size = 50;
+    $scope.cols = cols;
     $scope.stats = {};
     $scope.restart = function() {
       var _i, _ref, _results, _results1;
@@ -81,7 +84,7 @@
       while (isEndGame()) {
         _results.push(gems = (function() {
           _results1 = [];
-          for (var _i = 0, _ref = size * size; 0 <= _ref ? _i < _ref : _i > _ref; 0 <= _ref ? _i++ : _i--){ _results1.push(_i); }
+          for (var _i = 0, _ref = rows * cols; 0 <= _ref ? _i < _ref : _i > _ref; 0 <= _ref ? _i++ : _i--){ _results1.push(_i); }
           return _results1;
         }).apply(this).map(randomGem));
       }
@@ -187,15 +190,15 @@
       });
       return (function() {
         _results = [];
-        for (var _i = _ref = size * size - 1; _ref <= 0 ? _i <= 0 : _i >= 0; _ref <= 0 ? _i++ : _i--){ _results.push(_i); }
+        for (var _i = _ref = rows * cols - 1; _ref <= 0 ? _i <= 0 : _i >= 0; _ref <= 0 ? _i++ : _i--){ _results.push(_i); }
         return _results;
       }).apply(this).forEach(function(index) {
         var gem, upperIndex;
         gem = gems[index];
         if (!gem) {
           upperIndex = index;
-          while (upperIndex >= size && !gem) {
-            upperIndex = upperIndex - size;
+          while (upperIndex >= cols && !gem) {
+            upperIndex = upperIndex - cols;
             gem = gems[upperIndex];
             gems[upperIndex] = null;
           }
@@ -223,14 +226,14 @@
           gem = gems[index];
           if (gem && gem.color === firstGem.color) {
             linked.push(index);
-            if (index === 0 || (index + 1) % size) {
+            if (index === 0 || (index + 1) % cols) {
               queue.push(index + 1);
             }
-            if (index % size) {
+            if (index % cols) {
               queue.push(index - 1);
             }
-            queue.push(index + size);
-            queue.push(index - size);
+            queue.push(index + cols);
+            queue.push(index - cols);
           }
         }
       }

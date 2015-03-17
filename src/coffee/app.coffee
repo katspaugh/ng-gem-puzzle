@@ -51,8 +51,9 @@ Gem.Colors = [
 app.controller 'GemController', ($scope, $timeout) ->
   # How many gems must match
   matchNumber = 3
-  # The size of one side of the board
-  size = 8
+  # The size of the board
+  cols = 6
+  rows = 11
   # This is the array of gems on the board
   gems = []
   # A temporary array of currently highlighted gems
@@ -63,6 +64,10 @@ app.controller 'GemController', ($scope, $timeout) ->
   animationDuration = 300
   # Whether game is over or not
   endGame = false
+
+  # Gem size
+  $scope.size = 50
+  $scope.cols = cols
 
   # Statistics
   $scope.stats = {}
@@ -81,7 +86,7 @@ app.controller 'GemController', ($scope, $timeout) ->
     Generate a board with at least one string of linked gems
     ###
     while isEndGame()
-      gems = [0...(size * size)].map randomGem
+      gems = [0...(rows * cols)].map randomGem
 
   ###
   Returns the list of gems for iteration
@@ -162,12 +167,12 @@ app.controller 'GemController', ($scope, $timeout) ->
     gems.forEach (gem, index) ->
       gems[index] = null if gem.exploded
 
-    [(size * size - 1)..0].forEach (index) ->
+    [(rows * cols - 1)..0].forEach (index) ->
       gem = gems[index]
       if not gem
         upperIndex = index
-        while upperIndex >= size and not gem
-          upperIndex = upperIndex - size
+        while upperIndex >= cols and not gem
+          upperIndex = upperIndex - cols
           gem = gems[upperIndex]
           gems[upperIndex] = null
         # If there's a gem above the removed one, it falls down.
@@ -193,12 +198,12 @@ app.controller 'GemController', ($scope, $timeout) ->
         gem = gems[index]
         if gem and gem.color is firstGem.color
           linked.push(index)
-          if index is 0 or (index + 1) % size
+          if index is 0 or (index + 1) % cols
             queue.push(index + 1)
-          if index % size
+          if index % cols
             queue.push(index - 1)
-          queue.push(index + size)
-          queue.push(index - size)
+          queue.push(index + cols)
+          queue.push(index - cols)
     linked if linked.length >= matchNumber
 
   ###
