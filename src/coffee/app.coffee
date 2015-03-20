@@ -5,6 +5,8 @@ app = angular.module('gem-puzzle', ['ngAnimate'])
 Represents a polygonal jewel
 ###
 class Gem
+  viewBox: 200
+
   constructor: (color, type) ->
     @color = color
     @type = type
@@ -13,8 +15,7 @@ class Gem
     @points = @getPolygonPoints()
 
   getPolygonPoints: ->
-    size = 200
-    center = size / 2
+    center = @viewBox / 2
     base = 2 * Math.PI / @type
     ([0...@type].map (index) ->
       angle = base * (index + 0.5)
@@ -51,9 +52,6 @@ Gem.Colors = [
 app.controller 'GemController', ($scope, $timeout) ->
   # How many gems must match
   matchNumber = 3
-  # The size of the board
-  cols = 6
-  rows = 11
   # This is the array of gems on the board
   gems = []
   # A temporary array of currently highlighted gems
@@ -65,12 +63,26 @@ app.controller 'GemController', ($scope, $timeout) ->
   # Whether game is over or not
   endGame = false
 
-  # Gem size
+  # The size of the board
+  cols = 6
+  rows = 11
+  # The size of a gem
   $scope.size = 50
   $scope.cols = cols
 
   # Statistics
   $scope.stats = {}
+
+  ###
+  Calculates columns and the size of gems and starts the game
+  ###
+  $scope.init = (width, height) ->
+    maxCols = rows
+    size = Math.floor(height / rows) or 30
+    cols = Math.min(maxCols, Math.floor(width / size))
+    $scope.size = size
+    $scope.cols = cols
+    $scope.restart()
 
   $scope.restart = ->
     endGame = false
@@ -213,3 +225,10 @@ app.controller 'GemController', ($scope, $timeout) ->
     # If none of the gems are linked to 2 or more gems,
     # it's the end of the game
     !gems.some (gem) -> getLinked gem
+
+
+app.directive 'gemInit', ($window) ->
+  restrict: 'A'
+  link: ($scope) ->
+    console.log $window.innerWidth, $window.innerHeight
+    $scope.init($window.innerWidth - 50, $window.innerHeight - 100)

@@ -10,6 +10,8 @@
    */
 
   Gem = (function() {
+    Gem.prototype.viewBox = 200;
+
     function Gem(color, type) {
       this.color = color;
       this.type = type;
@@ -19,9 +21,8 @@
     }
 
     Gem.prototype.getPolygonPoints = function() {
-      var base, center, size, _i, _ref, _results;
-      size = 200;
-      center = size / 2;
+      var base, center, _i, _ref, _results;
+      center = this.viewBox / 2;
       base = 2 * Math.PI / this.type;
       return ((function() {
         _results = [];
@@ -57,16 +58,29 @@
   app.controller('GemController', function($scope, $timeout) {
     var animationDuration, cols, endGame, exploded, gems, getLinked, highlighted, isEndGame, matchNumber, randomGem, reorderGems, rows, updateStats;
     matchNumber = 3;
-    cols = 6;
-    rows = 11;
     gems = [];
     highlighted = [];
     exploded = [];
     animationDuration = 300;
     endGame = false;
+    cols = 6;
+    rows = 11;
     $scope.size = 50;
     $scope.cols = cols;
     $scope.stats = {};
+
+    /*
+    Calculates columns and the size of gems and starts the game
+     */
+    $scope.init = function(width, height) {
+      var maxCols, size;
+      maxCols = rows;
+      size = Math.floor(height / rows) || 30;
+      cols = Math.min(maxCols, Math.floor(width / size));
+      $scope.size = size;
+      $scope.cols = cols;
+      return $scope.restart();
+    };
     $scope.restart = function() {
       var _i, _ref, _results, _results1;
       endGame = false;
@@ -249,6 +263,16 @@
       return !gems.some(function(gem) {
         return getLinked(gem);
       });
+    };
+  });
+
+  app.directive('gemInit', function($window) {
+    return {
+      restrict: 'A',
+      link: function($scope) {
+        console.log($window.innerWidth, $window.innerHeight);
+        return $scope.init($window.innerWidth - 50, $window.innerHeight - 100);
+      }
     };
   });
 

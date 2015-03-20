@@ -14,19 +14,13 @@ body {
     margin: auto;
 }
 
-.gem-panel {
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    padding: 10px;
-}
-
 .gem-grid {
     margin: auto;
 }
 
 .gem-cell {
     position: relative;
-    float: left;
+    display: inline-block;
 }
 
 .gem-cell_animated.ng-enter {
@@ -48,6 +42,7 @@ body {
 }
 
 .gem {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
     animation: spin 20s infinite linear;
 }
 
@@ -68,6 +63,7 @@ body {
 }
 
 .gem__svg {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
     width: 100%;
     height: 100%;
     transition: opacity 300ms ease-out,
@@ -85,6 +81,7 @@ body {
 }
 
 .gem__polygon {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
     stroke-width: 8px;
     stroke: #fff;
 }
@@ -133,20 +130,21 @@ body {
 }
 
 .gem-stats {
+    text-align: center;
     white-space: nowrap;
     clear: both;
-    padding-top: 20px
+    padding-top: 20px;
 }
 
 .gem-stats ul {
     margin: 0;
-    padding: 0 0.5em;
 }
 
 .gem-stats li {
     display: inline-block;
     width: 33%;
     color: #777;
+    font-variant: small-caps;
 }
 
 .gem-dialog {
@@ -159,6 +157,8 @@ body {
     text-align: center;
     font-size: 2em;
     padding: 2em;
+    border: 1px solid #ddd;
+    border-radius: 6px;
 }
 
 .gem-dialog_animated.ng-enter {
