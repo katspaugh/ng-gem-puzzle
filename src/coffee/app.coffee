@@ -11,7 +11,6 @@ class Gem
     @color = color
     @type = type
     @exploded = false
-    @highlight = false
     @points = @getPolygonPoints()
 
   getPolygonPoints: ->
@@ -52,23 +51,26 @@ Gem.Colors = [
 app.controller 'GemController', ($scope, $timeout) ->
   # How many gems must match
   matchNumber = 3
-  # This is the array of gems on the board
-  gems = []
-  # A temporary array of currently highlighted gems
-  highlighted = []
+  # Animation diration
+  animationDuration = 100
   # A temporary array of indexes of currently exploded gems
   exploded = []
-  # Animation diration
-  animationDuration = 300
-  # Whether game is over or not
-  endGame = false
 
   # The size of the board
   cols = 6
   rows = 11
+
+  ###
+  Scope variables
+  ###
+  $scope.gems = []
+
   # The size of a gem
   $scope.size = 50
   $scope.cols = cols
+
+  # Whether game is over or not
+  $scope.endGame = false
 
   # Statistics
   $scope.stats = {}
@@ -78,14 +80,14 @@ app.controller 'GemController', ($scope, $timeout) ->
   ###
   $scope.init = (width, height) ->
     maxCols = rows
-    size = Math.floor(height / rows) or 30
+    size = Math.floor(height / rows)
     cols = Math.min(maxCols, Math.floor(width / size))
     $scope.size = size
     $scope.cols = cols
     $scope.restart()
 
   $scope.restart = ->
-    endGame = false
+    $scope.endGame = false
 
     $scope.stats = {
       gems: 0
@@ -98,19 +100,7 @@ app.controller 'GemController', ($scope, $timeout) ->
     Generate a board with at least one string of linked gems
     ###
     while isEndGame()
-      gems = [0...(rows * cols)].map randomGem
-
-  ###
-  Returns the list of gems for iteration
-  ###
-  $scope.getGems = ->
-    gems
-
-  ###
-  Checks if the game if over
-  ###
-  $scope.isGameOver = ->
-    endGame
+      $scope.gems = [0...(rows * cols)].map randomGem
 
   ###
   If the selected gem forms a string with adjusent gems of the
@@ -120,34 +110,18 @@ app.controller 'GemController', ($scope, $timeout) ->
     exploded = getLinked gem
     if exploded
       updateStats(exploded.length)
-      exploded.forEach (index) -> gems[index].exploded = true
+      exploded.forEach (index) -> $scope.gems[index].exploded = true
     $timeout(->
       exploded = null
       reorderGems()
-      endGame = isEndGame()
+      $scope.endGame = isEndGame()
     animationDuration)
-
-  ###
-  Highlights a string of linked gems
-  ###
-  $scope.highlightOn = (gem) ->
-    linked = getLinked(gem)
-    if linked
-      highlighted = linked.map (index) -> gems[index]
-      highlighted.forEach (gem) -> gem.highlight = true
-
-  ###
-  Un-highlights previously highlighted gems
-  ###
-  $scope.highlightOff = ->
-    highlighted.forEach (gem) -> gem.highlight = false
-    highlighted.length = 0
 
   ###
   Checks if a gem is the one initially selected
   ###
   $scope.initiatedExplosion = (gem) ->
-    gem.exploded and gems[exploded[0]] == gem
+    gem.exploded and $scope.gems[exploded[0]] == gem
 
   $scope.getExplodedCount = ->
     exploded and exploded.length
@@ -176,23 +150,23 @@ app.controller 'GemController', ($scope, $timeout) ->
   with the gems from the line above
   ###
   reorderGems = ->
-    gems.forEach (gem, index) ->
-      gems[index] = null if gem.exploded
+    $scope.gems.forEach (gem, index) ->
+      $scope.gems[index] = null if gem.exploded
 
     [(rows * cols - 1)..0].forEach (index) ->
-      gem = gems[index]
+      gem = $scope.gems[index]
       if not gem
         upperIndex = index
         while upperIndex >= cols and not gem
           upperIndex = upperIndex - cols
-          gem = gems[upperIndex]
-          gems[upperIndex] = null
+          gem = $scope.gems[upperIndex]
+          $scope.gems[upperIndex] = null
         # If there's a gem above the removed one, it falls down.
         # Otherwise, a new random gem falls down.
         if gem
-          gems[index] = new Gem gem.color, gem.type
+          $scope.gems[index] = new Gem gem.color, gem.type
         else
-          gems[index] = randomGem()
+          $scope.gems[index] = randomGem()
 
   ###
   Gets a string of subsequent gems of the same color.
@@ -203,11 +177,11 @@ app.controller 'GemController', ($scope, $timeout) ->
     # This is a queue-based flood fill algorithm.
     # See http://en.wikipedia.org/wiki/Flood_fill
     linked = []
-    queue = [ gems.indexOf firstGem ]
+    queue = [ $scope.gems.indexOf firstGem ]
     while queue.length
       index = queue.pop()
       if linked.indexOf(index) is -1
-        gem = gems[index]
+        gem = $scope.gems[index]
         if gem and gem.color is firstGem.color
           linked.push(index)
           if index is 0 or (index + 1) % cols
@@ -224,11 +198,10 @@ app.controller 'GemController', ($scope, $timeout) ->
   isEndGame = ->
     # If none of the gems are linked to 2 or more gems,
     # it's the end of the game
-    !gems.some (gem) -> getLinked gem
+    !$scope.gems.some (gem) -> getLinked gem
 
 
 app.directive 'gemInit', ($window) ->
   restrict: 'A'
   link: ($scope) ->
-    console.log $window.innerWidth, $window.innerHeight
     $scope.init($window.innerWidth - 50, $window.innerHeight - 100)

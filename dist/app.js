@@ -16,7 +16,6 @@
       this.color = color;
       this.type = type;
       this.exploded = false;
-      this.highlight = false;
       this.points = this.getPolygonPoints();
     }
 
@@ -56,17 +55,20 @@
   Gem.Colors = ['red', 'green', 'blue', 'yellow', 'violet'];
 
   app.controller('GemController', function($scope, $timeout) {
-    var animationDuration, cols, endGame, exploded, gems, getLinked, highlighted, isEndGame, matchNumber, randomGem, reorderGems, rows, updateStats;
+    var animationDuration, cols, exploded, getLinked, isEndGame, matchNumber, randomGem, reorderGems, rows, updateStats;
     matchNumber = 3;
-    gems = [];
-    highlighted = [];
+    animationDuration = 100;
     exploded = [];
-    animationDuration = 300;
-    endGame = false;
     cols = 6;
     rows = 11;
+
+    /*
+    Scope variables
+     */
+    $scope.gems = [];
     $scope.size = 50;
     $scope.cols = cols;
+    $scope.endGame = false;
     $scope.stats = {};
 
     /*
@@ -75,7 +77,7 @@
     $scope.init = function(width, height) {
       var maxCols, size;
       maxCols = rows;
-      size = Math.floor(height / rows) || 30;
+      size = Math.floor(height / rows);
       cols = Math.min(maxCols, Math.floor(width / size));
       $scope.size = size;
       $scope.cols = cols;
@@ -83,7 +85,7 @@
     };
     $scope.restart = function() {
       var _i, _ref, _results, _results1;
-      endGame = false;
+      $scope.endGame = false;
       $scope.stats = {
         gems: 0,
         strings: 0,
@@ -96,27 +98,13 @@
        */
       _results = [];
       while (isEndGame()) {
-        _results.push(gems = (function() {
+        _results.push($scope.gems = (function() {
           _results1 = [];
           for (var _i = 0, _ref = rows * cols; 0 <= _ref ? _i < _ref : _i > _ref; 0 <= _ref ? _i++ : _i--){ _results1.push(_i); }
           return _results1;
         }).apply(this).map(randomGem));
       }
       return _results;
-    };
-
-    /*
-    Returns the list of gems for iteration
-     */
-    $scope.getGems = function() {
-      return gems;
-    };
-
-    /*
-    Checks if the game if over
-     */
-    $scope.isGameOver = function() {
-      return endGame;
     };
 
     /*
@@ -128,47 +116,21 @@
       if (exploded) {
         updateStats(exploded.length);
         exploded.forEach(function(index) {
-          return gems[index].exploded = true;
+          return $scope.gems[index].exploded = true;
         });
       }
       return $timeout(function() {
         exploded = null;
         reorderGems();
-        return endGame = isEndGame();
+        return $scope.endGame = isEndGame();
       }, animationDuration);
-    };
-
-    /*
-    Highlights a string of linked gems
-     */
-    $scope.highlightOn = function(gem) {
-      var linked;
-      linked = getLinked(gem);
-      if (linked) {
-        highlighted = linked.map(function(index) {
-          return gems[index];
-        });
-        return highlighted.forEach(function(gem) {
-          return gem.highlight = true;
-        });
-      }
-    };
-
-    /*
-    Un-highlights previously highlighted gems
-     */
-    $scope.highlightOff = function() {
-      highlighted.forEach(function(gem) {
-        return gem.highlight = false;
-      });
-      return highlighted.length = 0;
     };
 
     /*
     Checks if a gem is the one initially selected
      */
     $scope.initiatedExplosion = function(gem) {
-      return gem.exploded && gems[exploded[0]] === gem;
+      return gem.exploded && $scope.gems[exploded[0]] === gem;
     };
     $scope.getExplodedCount = function() {
       return exploded && exploded.length;
@@ -197,9 +159,9 @@
      */
     reorderGems = function() {
       var _i, _ref, _results;
-      gems.forEach(function(gem, index) {
+      $scope.gems.forEach(function(gem, index) {
         if (gem.exploded) {
-          return gems[index] = null;
+          return $scope.gems[index] = null;
         }
       });
       return (function() {
@@ -208,18 +170,18 @@
         return _results;
       }).apply(this).forEach(function(index) {
         var gem, upperIndex;
-        gem = gems[index];
+        gem = $scope.gems[index];
         if (!gem) {
           upperIndex = index;
           while (upperIndex >= cols && !gem) {
             upperIndex = upperIndex - cols;
-            gem = gems[upperIndex];
-            gems[upperIndex] = null;
+            gem = $scope.gems[upperIndex];
+            $scope.gems[upperIndex] = null;
           }
           if (gem) {
-            return gems[index] = new Gem(gem.color, gem.type);
+            return $scope.gems[index] = new Gem(gem.color, gem.type);
           } else {
-            return gems[index] = randomGem();
+            return $scope.gems[index] = randomGem();
           }
         }
       });
@@ -233,11 +195,11 @@
     getLinked = function(firstGem) {
       var gem, index, linked, queue;
       linked = [];
-      queue = [gems.indexOf(firstGem)];
+      queue = [$scope.gems.indexOf(firstGem)];
       while (queue.length) {
         index = queue.pop();
         if (linked.indexOf(index) === -1) {
-          gem = gems[index];
+          gem = $scope.gems[index];
           if (gem && gem.color === firstGem.color) {
             linked.push(index);
             if (index === 0 || (index + 1) % cols) {
@@ -260,7 +222,7 @@
     Checks end game conditions
      */
     return isEndGame = function() {
-      return !gems.some(function(gem) {
+      return !$scope.gems.some(function(gem) {
         return getLinked(gem);
       });
     };
@@ -270,7 +232,6 @@
     return {
       restrict: 'A',
       link: function($scope) {
-        console.log($window.innerWidth, $window.innerHeight);
         return $scope.init($window.innerWidth - 50, $window.innerHeight - 100);
       }
     };

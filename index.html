@@ -20,16 +20,14 @@
 
     <body ng-app="gem-puzzle" onload="FastClick.attach(this)">
         <div class="gem-puzzle" ng-controller="GemController">
-            <div class="gem-grid gem-grid_game-over_{{isGameOver()}}"
+            <div class="gem-grid gem-grid_game-over_{{endGame}}"
                  gem-init
                  style="width: {{size * cols}}px">
                 <div class="gem-cell gem-cell_animated"
-                     ng-repeat="gem in getGems()">
-                    <div class="gem gem_color_{{gem.color}} gem_highlight_{{gem.highlight}} gem_exploded_{{gem.exploded}}"
+                     ng-repeat="gem in gems">
+                    <div class="gem gem_color_{{gem.color}} gem_exploded_{{gem.exploded}}"
                          style="width: {{size}}px; height: {{size}}px;"
-                         ng-click="explode(gem)"
-                         ng-mouseenter="highlightOn(gem)"
-                         ng-mouseleave="highlightOff()">
+                         ng-click="explode(gem)">
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                              ng-attr-view_box="0 0 {{gem.viewBox}} {{gem.viewBox}}"
                              class="gem__svg">
@@ -51,7 +49,7 @@
                 </ul>
             </div>
 
-            <div class="gem-dialog gem-dialog_animated" ng-show="isGameOver()">
+            <div class="gem-dialog gem-dialog_animated" ng-show="endGame">
                 <h2>Game over!</h2>
 
                 <p>
